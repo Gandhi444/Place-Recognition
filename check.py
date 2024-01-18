@@ -11,6 +11,8 @@ def test(index,distance):
                              data=predictions)
     if response.status_code == 200:
         print(response.json())
+        return response.json()
     else:
         print(response.status_code)
         print(response.text)
+        return None

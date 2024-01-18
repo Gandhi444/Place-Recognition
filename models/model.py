@@ -6,26 +6,24 @@ from torchmetrics import MetricCollection
 
 from metrics.multi import MultiMetric
 
-
 class EmbeddingModel(pl.LightningModule):
     def __init__(self,
                  embedding_size: int,
                  lr: float,
                  lr_patience: int,
-                 model: str
+                 model_name: str
                  ):
         super().__init__()
 
         self.save_hyperparameters()
-
         self.lr = lr
         self.lr_patience = lr_patience
 
-        self.network = timm.create_model(model, pretrained=True, num_classes=embedding_size)
+        self.network = timm.create_model(model_name, pretrained=True, num_classes=embedding_size)
 
         # TODO: The distance, the miner and the loss function are subject to change
         # TODO: Adding embedding regularization is probably a good idea
-        self.distance = distances.cosine_similarity()
+        self.distance = distances.cosine_similarity.CosineSimilarity()
         self.miner = miners.MultiSimilarityMiner(distance=self.distance)
         self.loss_function = losses.TripletMarginLoss(distance=self.distance)
 
@@ -72,7 +70,7 @@ class EmbeddingModel(pl.LightningModule):
         self.log_dict(self.val_metrics(preds, targets), sync_dist=True)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr,weight_decay=0.01)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=self.lr_patience)
         return {
             'optimizer': optimizer,
