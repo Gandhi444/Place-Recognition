@@ -1,9 +1,9 @@
 import requests
 
 
-def main():
-    student_id = 000000  # TODO: put your student id here
-    distance_name = 'euclidean'  # supported values are: manhattan, euclidean, cosine
+def test(index,distance):
+    student_id = index  # TODO: put your student id here
+    distance_name = distance  # supported values are: manhattan, euclidean, cosine
     with open('results.pickle', 'rb') as file:
         predictions = file.read()
 
@@ -14,7 +14,3 @@ def main():
     else:
         print(response.status_code)
         print(response.text)
-
-
-if __name__ == '__main__':
-    main()

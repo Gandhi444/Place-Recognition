@@ -4,14 +4,16 @@ from lightning import pytorch as pl
 from pytorch_metric_learning import miners, losses, distances
 from torchmetrics import MetricCollection
 
-from zpo_project.metrics.multi import MultiMetric
+from metrics.multi import MultiMetric
 
 
 class EmbeddingModel(pl.LightningModule):
     def __init__(self,
                  embedding_size: int,
                  lr: float,
-                 lr_patience: int):
+                 lr_patience: int,
+                 model: str
+                 ):
         super().__init__()
 
         self.save_hyperparameters()
@@ -19,11 +21,11 @@ class EmbeddingModel(pl.LightningModule):
         self.lr = lr
         self.lr_patience = lr_patience
 
-        self.network = timm.create_model('resnet10t', pretrained=True, num_classes=embedding_size)
+        self.network = timm.create_model(model, pretrained=True, num_classes=embedding_size)
 
         # TODO: The distance, the miner and the loss function are subject to change
         # TODO: Adding embedding regularization is probably a good idea
-        self.distance = distances.LpDistance(p=2)  # Euclidean distance
+        self.distance = distances.cosine_similarity()
         self.miner = miners.MultiSimilarityMiner(distance=self.distance)
         self.loss_function = losses.TripletMarginLoss(distance=self.distance)
 

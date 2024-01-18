@@ -7,9 +7,9 @@ from lightning import pytorch as pl
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 
-from zpo_project.datasets.evaluation import EvaluationDataset
-from zpo_project.datasets.metric_learning import MetricLearningDataset
-from zpo_project.datasets.prediction import PredictionDataset
+from datasets.evaluation import EvaluationDataset
+from datasets.metric_learning import MetricLearningDataset
+from datasets.prediction import PredictionDataset
 
 
 class MetricLearningDataModule(pl.LightningDataModule):

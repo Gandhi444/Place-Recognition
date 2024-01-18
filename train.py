@@ -2,14 +2,17 @@ import pickle
 from pathlib import Path
 
 import lightning.pytorch as pl
-
-from zpo_project.datamodules.metric_learning import MetricLearningDataModule
-from zpo_project.models.model import EmbeddingModel
-
+import json
+from datamodules.metric_learning import MetricLearningDataModule
+from models.model import EmbeddingModel
+import check
 
 def train():
     pl.seed_everything(42, workers=True)
-
+    f = open('keys.json')
+    keys=json.load()
+    neptune_key=keys['neptune_api']
+    index=keys['index']
     # TODO: experiment with data module and model settings
     datamodule = MetricLearningDataModule(
         data_path=Path('data'),
@@ -23,7 +26,8 @@ def train():
     model = EmbeddingModel(
         embedding_size=1024,
         lr=3e-4,
-        lr_patience=10
+        lr_patience=10,
+        model='resnet10t'
     )
 
     model_summary_callback = pl.callbacks.ModelSummary(max_depth=-1)
@@ -31,8 +35,11 @@ def train():
                                                        monitor='val_precision_at_1', verbose=True, save_last=True)
     early_stop_callback = pl.callbacks.EarlyStopping(monitor='val_precision_at_1', mode='max', patience=50)
     lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval='epoch')
-
-    trainer = pl.Trainer(
+    
+    logger = pl.loggers.NeptuneLogger(project='gandhi444/Place-Recognition',
+                                  api_token=neptune_key)
+    
+    trainer = pl.Trainer(logger=logger,
         callbacks=[model_summary_callback, checkpoint_callback, early_stop_callback, lr_monitor],
         accelerator='gpu',
         max_epochs=1000
@@ -48,6 +55,8 @@ def train():
 
     with open('results.pickle', 'wb') as file:
         pickle.dump(results, file)
+
+    check.test(index,'cosine')
 
 
 if __name__ == '__main__':
