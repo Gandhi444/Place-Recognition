@@ -14,7 +14,8 @@ from datasets.prediction import PredictionDataset
 
 class MetricLearningDataModule(pl.LightningDataModule):
     def __init__(self, data_path: Path, number_of_places_per_batch: int, number_of_images_per_place: int,
-                 number_of_batches_per_epoch: int, augment: bool, validation_batch_size: int, number_of_workers: int):
+                 number_of_batches_per_epoch: int, augment: bool, validation_batch_size: int, number_of_workers: int,
+                 ):
         super().__init__()
 
         self._data_path = Path(data_path)
@@ -31,9 +32,11 @@ class MetricLearningDataModule(pl.LightningDataModule):
         ])
         self._augmentations = albumentations.Compose([
             albumentations.Rotate(limit=10, p=0.9),
-            albumentations.Affine(scale=(0.9, 1.1), translate_percent=(-0.1, 0.1), p=1.0),
-            albumentations.augmentations.transforms.ChannelShuffle(p=0.1),
-            albumentations.augmentations.transforms.RandomBrightness(p=0.1),
+            #albumentations.augmentations.transforms.ChannelShuffle(p=0.1),
+            #albumentations.augmentations.transforms.RandomBrightnessContrast(p=0.1),
+            albumentations.augmentations.geometric.transforms.Flip(p=0.1),
+            albumentations.augmentations.transforms.FancyPCA(p=0.2),
+            albumentations.augmentations.transforms.HueSaturationValue(p=0.2),
             albumentations.CenterCrop(512, 512),
             albumentations.Normalize(timm.data.IMAGENET_DEFAULT_MEAN, timm.data.IMAGENET_DEFAULT_STD),
             albumentations.pytorch.transforms.ToTensorV2()

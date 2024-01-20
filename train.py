@@ -13,8 +13,9 @@ def train():
     keys=json.load(f)
     neptune_key=keys['neptune_api']
     index=keys['index']
+    f.close()
     # TODO: experiment with data module and model settings
-    num_places=6
+    num_places=7
     num_images=3
     datamodule = MetricLearningDataModule(
         data_path=Path('data'),
@@ -25,11 +26,13 @@ def train():
         validation_batch_size=num_places*num_images,
         number_of_workers=8
     )
+
     model = EmbeddingModel(
         embedding_size=1024,
-        lr=3e-3,
+        lr=3e-4,
         lr_patience=10,
-        model_name='mobilenetv3_large_100.ra_in1k'
+        model_name='mobilenetv3_large_100.ra_in1k',
+        l2norm=0.001
     )
 
     model_summary_callback = pl.callbacks.ModelSummary(max_depth=-1)
@@ -43,7 +46,7 @@ def train():
     trainer = pl.Trainer(logger=logger,
         callbacks=[model_summary_callback, checkpoint_callback, early_stop_callback, lr_monitor],
         accelerator='gpu',
-        max_epochs=30
+        max_epochs=50
     )
 
     trainer.fit(model=model, datamodule=datamodule)
