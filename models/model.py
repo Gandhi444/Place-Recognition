@@ -26,11 +26,12 @@ class EmbeddingModel(pl.LightningModule):
         # TODO: Adding embedding regularization is probably a good idea
         self.distance = distances.cosine_similarity.CosineSimilarity()
         #self.distance = distances.DotProductSimilarity()
-        #self.miner = miners.MultiSimilarityMiner(distance=self.distance)
-        self.miner=miners.TripletMarginMiner(distance=self.distance)
+        self.miner = miners.MultiSimilarityMiner(distance=self.distance)
+        #self.miner=miners.TripletMarginMiner(distance=self.distance)
 
         #self.regularizer = regularizers.ZeroMeanRegularizer()
-        self.loss_function = losses.TripletMarginLoss(distance=self.distance)
+        #self.loss_function = losses.TripletMarginLoss(distance=self.distance)
+        self.loss_function = losses.CircleLoss(distance=self.distance)
         #self.loss_function=losses.GeneralizedLiftedStructureLoss(distance=self.distance)
         
         self.val_outputs = None
@@ -77,7 +78,8 @@ class EmbeddingModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr,weight_decay=self.l2norm)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=self.lr_patience,factor=0.2,min_lr=3e-6)
+        #scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=self.lr_patience,factor=0.2,min_lr=3e-6)
+        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer,gamma=0.925)
         return {
             'optimizer': optimizer,
             'lr_scheduler': scheduler,
