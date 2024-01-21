@@ -24,13 +24,15 @@ class EmbeddingModel(pl.LightningModule):
 
         # TODO: The distance, the miner and the loss function are subject to change
         # TODO: Adding embedding regularization is probably a good idea
-        #self.distance = distances.cosine_similarity.CosineSimilarity()
-        self.distance = distances.DotProductSimilarity()
+        self.distance = distances.cosine_similarity.CosineSimilarity()
+        #self.distance = distances.DotProductSimilarity()
         #self.miner = miners.MultiSimilarityMiner(distance=self.distance)
         self.miner=miners.TripletMarginMiner(distance=self.distance)
+
+        #self.regularizer = regularizers.ZeroMeanRegularizer()
         self.loss_function = losses.TripletMarginLoss(distance=self.distance)
         #self.loss_function=losses.GeneralizedLiftedStructureLoss(distance=self.distance)
-        self.regularizer = regularizers.SparseCentersRegularizer()
+        
         self.val_outputs = None
 
         metrics = MetricCollection(MultiMetric(distance=self.distance))
@@ -44,7 +46,7 @@ class EmbeddingModel(pl.LightningModule):
         x = x.squeeze(0)
         y = y.squeeze(0)
         y_pred = self.forward(x)
-        loss = self.loss_function(y_pred, y, self.miner(y_pred, y))#,embedding_regularizer=self.regularizer)
+        loss = self.loss_function(y_pred, y, self.miner(y_pred, y))
         self.log('train_loss', loss, sync_dist=True, prog_bar=True)
         return loss
 
