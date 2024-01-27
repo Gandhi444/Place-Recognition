@@ -18,7 +18,7 @@ def train():
     num_places=7
     num_images=3
     datamodule = MetricLearningDataModule(
-        data_path=Path('data'),
+        data_path=Path('extended'),
         number_of_places_per_batch=num_places,
         number_of_images_per_place=num_images,
         number_of_batches_per_epoch=100,
@@ -32,7 +32,7 @@ def train():
         lr=3e-4,
         lr_patience=10,
         model_name='mobilenetv3_large_100.ra_in1k',
-        l2norm=0.001
+        l2norm=0.000
     )
 
     model_summary_callback = pl.callbacks.ModelSummary(max_depth=-1)

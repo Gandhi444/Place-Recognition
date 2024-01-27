@@ -31,7 +31,8 @@ class EmbeddingModel(pl.LightningModule):
 
         #self.regularizer = regularizers.ZeroMeanRegularizer()
         #self.loss_function = losses.TripletMarginLoss(distance=self.distance)
-        self.loss_function = losses.CircleLoss(distance=self.distance)
+        #self.loss_function = losses.CircleLoss(distance=self.distance)
+        self.loss_function= losses.NCALoss(distance=self.distance)
         #self.loss_function=losses.GeneralizedLiftedStructureLoss(distance=self.distance)
         
         self.val_outputs = None

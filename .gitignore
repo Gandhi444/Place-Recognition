@@ -165,3 +165,4 @@ data/
 loss.py
 lightning_logs
 results.pickle
+extended

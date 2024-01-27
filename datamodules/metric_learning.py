@@ -39,6 +39,7 @@ class MetricLearningDataModule(pl.LightningDataModule):
             albumentations.CenterCrop(512, 512),
             albumentations.augmentations.transforms.FancyPCA(p=0.2),
             albumentations.augmentations.transforms.HueSaturationValue(p=0.3),
+            albumentations.augmentations.dropout.coarse_dropout.CoarseDropout(p=0.2),
             albumentations.Normalize(timm.data.IMAGENET_DEFAULT_MEAN, timm.data.IMAGENET_DEFAULT_STD),
             albumentations.pytorch.transforms.ToTensorV2()
         ]) if augment else self._transforms
